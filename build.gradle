@@ -1,0 +1,43 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.8.21'
+    id 'com.google.devtools.ksp' version '1.8.21-1.0.11'
+    id 'application'
+}
+
+group = 'com.i1nfo'
+version = '1.0-alpha'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.mnode.ical4j:ical4j:4.0.0-beta7'
+
+    implementation "com.squareup.moshi:moshi:1.15.0"
+    ksp "com.squareup.moshi:moshi-kotlin-codegen:1.15.0"
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+kotlin {
+    jvmToolchain(11)
+}
+
+application {
+    mainClassName = 'com.i1nfo.MainKt'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
