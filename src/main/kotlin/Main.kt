@@ -17,17 +17,19 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.time.Duration
 import java.time.LocalDate
-import java.util.*
 
 
 @OptIn(ExperimentalStdlibApi::class)
-fun main() {
+fun main(args: Array<String>) {
+    if (args.size != 3) {
+        println("Usage: java -jar ical4zf.jar <input file> <output file> <term start>")
+        return
+    }
+
     val moshi = Moshi.Builder().build()
     val jsonAdapter = moshi.adapter<ZfClassTable>()
 
-    println("Please paste the json file:")
-    val scanner = Scanner(System.`in`)
-    val jsonFile = FileInputStream(scanner.nextLine())
+    val jsonFile = FileInputStream(args[0])
 
     val classTable = jsonAdapter.fromJson(Buffer().readFrom(jsonFile))
     val courses = classTable?.extractCourses() ?: return
@@ -36,9 +38,7 @@ fun main() {
         add(Action(Action.VALUE_DISPLAY))
     }
 
-    println("Please enter the first day of the term (yyyy-MM-dd):")
-    val dayString = scanner.next()
-    val termStart = LocalDate.parse(dayString)
+    val termStart = LocalDate.parse(args[2])
 
     val vEvents = courses.map {
         CourseEvent(it, termStart).apply {
@@ -55,8 +55,8 @@ fun main() {
 
     println(calendar)
 
-    println("File saved to calendar.ics")
-    val out = FileOutputStream("calendar.ics")
+    println("File saved to ${args[1]}")
+    val out = FileOutputStream(args[1])
 
     val outputter = CalendarOutputter()
     outputter.output(calendar, out)
